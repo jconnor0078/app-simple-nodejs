@@ -1,49 +1,36 @@
-var http = require('http');
-var url = require('url');
-var querystring = require('querystring');
+const express = require('express');
+const bodyParser = require('body-parser');
+const dotenv = require('dotenv');
+const mongoose = require('mongoose');
 
-//var log = require('./modules/my-log'); //export global
-var {info, error} = require("./modules/my-log");
-/*import { createServer } from 'http'; nueva forma*/
+dotenv.config();
 
-var {countries} = require('countries-list');
+const PORT = process.env.PORT || 4000;
 
-var server = http.createServer(function(request, response){
-    var parsed = url.parse(request.url);
-    console.log("parsed", parsed);
+const routes = require('./routes/v1');
 
-    var pathName = parsed.pathname;
-    var query= querystring.parse(parsed.query);
-    console.log("query", query);
+const app = express();
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }));
 
-    if(pathName==="/"){
-        response.writeHead(200,{'Content-Type':'text/html'});
-        response.write('<html><body><h1>Hola Mundo</h1></body></html>');
-        response.end();
-    }else if(pathName==="/exit"){
-        response.writeHead(200,{'Content-Type':'text/html'});
-        response.write('<html><body><h1>Bye</h1></body></html>');
-        response.end();
-    }else if(pathName==="/info"){
-        var result = info(pathName)
-        response.writeHead(200,{'Content-Type':'text/html'});
-        response.write(result);
-        response.end();
-    }else if(pathName==="/error"){
-        var result = error(pathName)
-        response.writeHead(200,{'Content-Type':'text/html'});
-        response.write(result);
-        response.end();
-    }else if(pathName==="/contry"){
-        response.writeHead(200,{'Content-Type':'Application/json'});
-        response.write( JSON.stringify(countries[query.code]));
-        response.end();
-    }else{
-        response.writeHead(401,{'Content-Type':'text/html'});
-        response.write('<html><body><h1>NO FOUND</h1></body></html>');
-        response.end();
-    }
-});
+// parse application/json
+app.use(bodyParser.json());
 
-server.listen(4000);
-console.log("running on 4000");
+routes(app);
+
+mongoose
+  .connect(process.env.MONGO, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useFindAndModify: false,
+    useCreateIndex: true,
+  })
+  .then(() => {
+    console.log('Conected to Mongo DB');
+    app.listen(PORT, () => {
+      console.log(`running on ${PORT} PORT`);
+    });
+  })
+  .catch((error) => {
+    console.log('ERROR MONGO DB: ', error);
+  });
