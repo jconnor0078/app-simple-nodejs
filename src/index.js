@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
+const cors = require('cors');
 
 dotenv.config();
 
@@ -10,6 +11,8 @@ const PORT = process.env.PORT || 4000;
 const routes = require('./routes/v1');
 
 const app = express();
+//add cors
+app.use(cors());
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
 
