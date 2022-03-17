@@ -85,8 +85,8 @@ const getStores = async (req, res) => {
 
 const getStoreById = async (req, res) => {
   try {
-    console.log('method deleteStore -> req.body: ', req.body);
-    const { storeId } = req.body; 
+    console.log('method deleteStore -> req.body: ', req.params);
+    const { storeId } = req.params; 
     const store = await Stores.findOne({ _id: storeId })
       .select('_id nombre iniciales');
 
@@ -98,8 +98,6 @@ const getStoreById = async (req, res) => {
   }
 };
  
-
-
 module.exports = {
   createStore,
   updateStore,
